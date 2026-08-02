@@ -11,6 +11,15 @@
                 return;
             }
 
+            string path = args[0];
+
+            if (!File.Exists(path))
+            {
+                Console.Error.WriteLine($"cat: {path}: no such file or directory");
+                Environment.ExitCode = 1;
+                return;
+            }
+
             try
             {
                 string data = File.ReadAllText(args[0]);
@@ -18,7 +27,8 @@
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
+                Console.Error.WriteLine($"cat: {ex.Message}");
+                Environment.ExitCode = 1;
             }
         }
     }
