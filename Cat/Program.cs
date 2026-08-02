@@ -5,11 +5,20 @@
         static void Main(string[] args)
         {
             // Step 1: open the file specified on the command line and write its contents to standard out.
-            string path = "C:\\Users\\ayesh\\ayesh_work\\Dev\\unix-utilities\\TestData\\test.txt";
+            string path = "C:\\Users\\ayesh\\ayesh_work\\Dev\\unix-utilities\\TestData\\test2.txt";
 
-            string data = File.ReadAllText(path);
+            try
+            {
+                string data = File.ReadAllText(path);
+                Console.WriteLine(data);
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine(ex.Message);
+            }
 
-            Console.Write(data);
+            Console.ReadKey();
         }
     }
 }
