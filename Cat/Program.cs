@@ -4,13 +4,15 @@
     {
         static void Main(string[] args)
         {
+            if (args.Length != 1)
+            {
+                Console.Error.WriteLine("Usage: cat <file_path>");
+                Environment.ExitCode = 1;
+                return;
+            }
+
             try
             {
-                if (args.Length != 1)
-                {
-                    throw new Exception("Invalid Parameters");
-                }
-
                 string data = File.ReadAllText(args[0]);
                 Console.WriteLine(data);
             }
