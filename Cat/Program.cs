@@ -22,12 +22,14 @@
 
             try
             {
-                string data = File.ReadAllText(args[0]);
-                Console.WriteLine(data);
+                using Stream sourceStream = File.OpenRead(path);
+                using Stream standardOut = Console.OpenStandardOutput();
+
+                sourceStream.CopyTo(standardOut);
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"cat: {ex.Message}");
+                Console.Error.WriteLine($"cat: {path}: {ex.Message}");
                 Environment.ExitCode = 1;
             }
         }
