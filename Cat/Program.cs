@@ -23,65 +23,62 @@
 
             foreach (string arg in args)
             {
+                if (arg == "-n" || arg == "-b") continue;
+
+                Stream inputStream = null;
+
                 if (arg == "-")
                 {
-                    using Stream stdin = Console.OpenStandardInput();
-                    using Stream stdout = Console.OpenStandardOutput();
-
-                    stdin.CopyTo(stdout);
+                    inputStream = Console.OpenStandardInput();
                 }
                 else
                 {
-                    if (arg == "-n" || arg == "-b")
-                        continue;
-
-                    string filePath = arg;
-
-                    if (!File.Exists(filePath))
+                    if (!File.Exists(arg))
                     {
-                        Console.Error.WriteLine($"cat: {filePath}: no such file or directory");
+                        Console.Error.WriteLine($"cat: {arg}: no such file or directory");
                         Environment.ExitCode = 1;
                         continue;
                     }
-                    
-                    try
-                    {   
-                        if (bFlag)
-                        {
-                            var lines = File.ReadAllLines(filePath);
-                            foreach (var l in lines)
-                            {
-                                if (l == "\n" || l == "\n\r" || l == "\r\n" || l.IsWhiteSpace())
-                                {
-                                    Console.WriteLine();
-                                    continue;
-                                }
-                                Console.WriteLine($"{++numLine} {l}");
-                            }
-                        }
-                        else if (nFlag)
-                        {
-                            var lines = File.ReadAllLines(filePath);
-                            foreach (var l in lines)
-                            {
-                                Console.WriteLine($"{++numLine} {l}");
-                            }
-                        }
-                        else
-                        {
-                            using Stream stdin = File.OpenRead(arg);
-                            using Stream stdout = Console.OpenStandardOutput();
-                            stdin.CopyTo(stdout);
-                        }
-                        
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"cat: {arg}: {ex.Message}");
-                        Environment.ExitCode = 1;
-                    }
-
+                    inputStream = File.OpenRead(arg);
                 }
+
+                try
+                {
+                    // if either flag is true, then we must process line-by-line
+                    if (bFlag || nFlag)
+                    {
+                        using var record = new StreamReader(inputStream, leaveOpen: true);
+                        string line;
+
+                        while ((line = record.ReadLine()) is not null)
+                        {
+                            if (bFlag && string.IsNullOrEmpty(line))
+                            {
+                                Console.WriteLine();
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{++numLine,6}\t{line}");
+                            }
+                        }
+                    }
+                    // no flags; write all inputStream to outputStream
+                    else
+                    {
+                        using Stream stdout = Console.OpenStandardOutput();
+                        inputStream.CopyTo(stdout);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"cat: {arg}: {ex.Message}");
+                    Environment.ExitCode = 1;
+                }
+                finally
+                {
+                    if (arg == "-")
+                        inputStream.Dispose();
+                }                
             }
         }
     }
