@@ -4,9 +4,27 @@
     {
         static void Main(string[] args)
         {
+            bool nFlag = false;
+            bool bFlag = false;
+            int numLine = 0;
+
             if (args.Length == 0)
             {
                 args = new string[] { "-" };
+            }
+            else
+            {
+                foreach (var arg in args)
+                {
+                    if (arg == "-b")
+                    {
+                        bFlag = true;
+                    }
+                    if (arg == "-n")
+                    {
+                        nFlag = true;
+                    }
+                }
             }
 
             foreach (string arg in args)
@@ -20,6 +38,9 @@
                 }
                 else
                 {
+                    if (arg == "-n" || arg == "-b")
+                        continue;
+
                     string filePath = arg;
 
                     if (!File.Exists(filePath))
@@ -30,11 +51,35 @@
                     }
                     
                     try
-                    {
-                        using Stream stdin = File.OpenRead(arg);
-                        using Stream stdout = Console.OpenStandardOutput();
-
-                        stdin.CopyTo(stdout);
+                    {   
+                        if (bFlag)
+                        {
+                            var lines = File.ReadAllLines(filePath);
+                            foreach (var l in lines)
+                            {
+                                if (l == "\n" || l == "\n\r" || l == "\r\n" || l.IsWhiteSpace())
+                                {
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                Console.WriteLine($"{++numLine} {l}");
+                            }
+                        }
+                        else if (nFlag)
+                        {
+                            var lines = File.ReadAllLines(filePath);
+                            foreach (var l in lines)
+                            {
+                                Console.WriteLine($"{++numLine} {l}");
+                            }
+                        }
+                        else
+                        {
+                            using Stream stdin = File.OpenRead(arg);
+                            using Stream stdout = Console.OpenStandardOutput();
+                            stdin.CopyTo(stdout);
+                        }
+                        
                     }
                     catch (Exception ex)
                     {
