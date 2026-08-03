@@ -16,14 +16,8 @@
             {
                 foreach (var arg in args)
                 {
-                    if (arg == "-b")
-                    {
-                        bFlag = true;
-                    }
-                    if (arg == "-n")
-                    {
-                        nFlag = true;
-                    }
+                    if (arg == "-b") bFlag = true;
+                    if (arg == "-n") nFlag = true;
                 }
             }
 
