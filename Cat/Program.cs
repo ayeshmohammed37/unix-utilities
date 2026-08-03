@@ -4,44 +4,45 @@
     {
         static void Main(string[] args)
         {
-            // Step 1
-            if (args.Length == 1 && !Console.IsInputRedirected)
+            if (args.Length == 0)
             {
-                string filePath = args[0];
-                if (!File.Exists(filePath))
-                {
-                    Console.Error.WriteLine($"cat: {filePath}: no such file or directory");
-                    Environment.ExitCode = 1;
-                    return;
-                }
-
-                try
-                {
-                    using Stream sourceStream = File.OpenRead(filePath);
-                    using Stream standardOut = Console.OpenStandardOutput();
-
-                    sourceStream.CopyTo(standardOut);
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"cat: {filePath}: {ex.Message}");
-                    Environment.ExitCode = 1;
-                }
+                args = new string[] { "-" };
             }
-            // Step 2
-            else if (args.Length == 0 && Console.IsInputRedirected)
-            {
-                using Stream stdin = Console.OpenStandardInput();
-                using Stream stdout = Console.OpenStandardOutput();
 
-                stdin.CopyTo(stdout);
-
-            }
-            else
+            foreach (string arg in args)
             {
-                Console.Error.WriteLine("Usage: cat <file_path>");
-                Environment.ExitCode = 1;
-                return;
+                if (arg == "-")
+                {
+                    using Stream stdin = Console.OpenStandardInput();
+                    using Stream stdout = Console.OpenStandardOutput();
+
+                    stdin.CopyTo(stdout);
+                }
+                else
+                {
+                    string filePath = arg;
+
+                    if (!File.Exists(filePath))
+                    {
+                        Console.Error.WriteLine($"cat: {filePath}: no such file or directory");
+                        Environment.ExitCode = 1;
+                        continue;
+                    }
+                    
+                    try
+                    {
+                        using Stream stdin = File.OpenRead(arg);
+                        using Stream stdout = Console.OpenStandardOutput();
+
+                        stdin.CopyTo(stdout);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"cat: {arg}: {ex.Message}");
+                        Environment.ExitCode = 1;
+                    }
+
+                }
             }
         }
     }
