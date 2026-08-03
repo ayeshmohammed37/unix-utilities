@@ -31,8 +31,10 @@
             // Step 2
             else if (args.Length == 0 && Console.IsInputRedirected)
             {
-                string standardInData = Console.In.ReadToEnd();
-                Console.Write(standardInData);
+                using Stream stdin = Console.OpenStandardInput();
+                using Stream stdout = Console.OpenStandardOutput();
+
+                stdin.CopyTo(stdout);
 
             }
             else
@@ -42,6 +44,5 @@
                 return;
             }
         }
-
     }
 }
